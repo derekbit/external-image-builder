@@ -50,7 +50,17 @@ for repo_branch_tag in "${items[@]}"; do
     # Run the release build
     export REGISTRY_NAME="$registry_name"
     export PULL_BASE_REF="$tag"
-    bash release-tools/cloudbuild.sh
+    export CSI_PROW_WORK="$(pwd)/csi-prow-work"
+    
+    if ! mkdir -p "${CSI_PROW_WORK}"; then
+        echo "Error: Failed to create directory ${CSI_PROW_WORK}" >&2
+        exit 1
+    fi
+
+    if ! bash release-tools/cloudbuild.sh; then
+        echo "Error: Failed to execute release-tools/cloudbuild.sh" >&2
+        exit 1
+    fi
 
     popd >/dev/null
 done
